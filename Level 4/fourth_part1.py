@@ -1,7 +1,19 @@
+
 def solution(banana_list):
     
     # WHAT TO DO IF ODD NUMBER OF TRAINERS
-    
+    def gcd(a, b):
+        if a == 0:
+            return b
+        if b == 0:
+            return a
+        if a == b:
+            return a
+        if a > b:
+            return gcd(a - b, b)
+        return gcd(a, b - a)
+    print(gcd(1,4))
+
     # define base cases
     
     # if only 1 trainer
@@ -111,22 +123,25 @@ def solution(banana_list):
     # trainers that form infinite pairs with no one
     problems = []
     
+    # copy of banana list to work on
+    copy_list = banana_list[:]
+    
     # start iterating through the list
-    while len(banana_list) > 0:
+    while len(copy_list) > 0:
         # locate current trainer
-        current = banana_list[0]
+        current = copy_list[0]
         
         # check if the current trainer is odd, then find an even trainer and remove them both
         next_even = False
         next_odd = False
         flag = False
         if current % 2 != 0:
-            next_even = find_even(banana_list)
+            next_even = find_even(copy_list)
             if next_even != False:
                 # this means we did find an even number
                 # remove current trainer and the one with the even number from the list
-                banana_list.pop(0)
-                banana_list.pop(next_even["index"] - 1)
+                copy_list.pop(0)
+                copy_list.pop(next_even["index"] - 1)
                 # they are stuck fighting forever
                 stay += 2
             else:
@@ -136,12 +151,12 @@ def solution(banana_list):
                 flag = True
         else:
             # current trainer is even
-            next_odd = find_odd(banana_list)
+            next_odd = find_odd(copy_list)
             if next_odd != False:
                 # we did find an odd number
                 # remove them both from the list
-                banana_list.pop(0)
-                banana_list.pop(next_odd["index"] - 1)
+                copy_list.pop(0)
+                copy_list.pop(next_odd["index"] - 1)
                 # they will fight forever
                 stay += 2
             else:
@@ -153,7 +168,7 @@ def solution(banana_list):
         if flag:
             # this means no immediate pair was found that will be stuck forever
             # need to play turns with other trainers to see if an infinite pair can be found
-            possibilites = play_turns(banana_list, mem)
+            possibilites = play_turns(copy_list, mem)
             
             found_infinite = False
             
@@ -162,8 +177,8 @@ def solution(banana_list):
                 if possibilites[i][0] == 1:
                     # found infinite pair, remove both trainers
                     found_infinite = True
-                    banana_list.pop(0)
-                    banana_list.pop(possibilites[i][0] - 1)
+                    copy_list.pop(0)
+                    copy_list.pop(possibilites[i][0] - 1)
                     stay += 2
                     break
             
@@ -172,11 +187,14 @@ def solution(banana_list):
                 # add trainer to problem list
                 problems.append(current)
                 # remove current element from banana list
-                banana_list.pop(0)
+                copy_list.pop(0)
                 # print('no infinite partner found')
                 # if after banana list is empty, we have even number of problem items, add them to the ones that remain
+    
+    # now play turns for all problem trainers
+    print(problems)
 
-    return leave
+    return leave + len(banana_list)
     
     
 
