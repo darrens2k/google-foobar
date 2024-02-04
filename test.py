@@ -1,207 +1,143 @@
+class Node:
+    def __init__(self, value):
+        self.value = value
+        self.edges = []  # List to store outgoing edges
 
-def solution(banana_list):
-    
-    # Base cases:
-    
-    # If there's only one trainer, return 1
-    if len(banana_list) == 1:
-        return 1
-    
-    # If all trainers have the same number of bananas, return the number of trainers
-    same_amount = True
-    prev = banana_list[0]
-    for value in banana_list:
-        if value != prev:
-            same_amount = False
-            break
-    
-    if same_amount:
-        return len(banana_list)
-    
-    # Initialize a nested list to store possible pairings for each trainer
-    # 1 represents infinite pairing, 0 represents they will leave
-    # Trainer cannot be paired with themself
-    potentials = []
-    for i in range(len(banana_list)):
-        temp = []
-        for j in range(len(banana_list)):
-            temp.append(0)
-        potentials.append(temp)
-    
-    # Create a memory for memoization
-    mem = {}
-    
-    # Function to play a single turn
-    def play_turn(a, b, memory):
-        # Check if we have seen this before
-        if (a, b) in memory:
-            return memory[(a,b)]
-        # Nothing happens if a = b
-        if a == b:
-            return [-1, -1]
-        # A loses if it is bigger
-        if a > b:
-            memory[(a, b)] = [a - b, b + b]
-            return [a - b, b + b]
-        # B loses if it is bigger
-        else:
-            memory[(a, b)] = [a + a, b - a]
-            return [a + a, b - a]
-        
-    # Function to determine if two trainers will be in an infinite battle or not
-    def play_turns(a, b, result, input_list, mem_dict):
-        # A and B are indices of the elements in the input list
-        first = input_list[a]
-        second = input_list[b]
-        
-        # An odd/even pair will be stuck in an infinite battle
-        if (first % 2 == 0 and second % 2 != 0) or (first % 2 != 0 and second % 2 == 0):        
-            # Update the outcomes list
-            result[a][b] = 1
-            return result
-            
-        # Play turns to check outcome
-        # Boolean to check if turn reached an infinite or tie state
-        not_done = True
-        # List to store outcomes of turns 
-        turns = []
-        # Initialize counter
-        counter = 0
-        
-        # Loop until terminal state reached, or 15 turns have passed
-        while not_done or counter == 15:
-            # Play a turn
-            turn = play_turn(first, second, mem_dict)
-            # Check if even/odd pair, infinite pair
-            if (turn[0] % 2 != 0 and turn[1] % 2 == 0) or (turn[0] % 2 == 0 and turn[1] % 2 != 0):
-                not_done = False
-                result[a][b] = 1
-            # If we return to a state we have seen before, likely that we are in infinite state
-            if turn in turns:
-                not_done = False
-                result[a][b] = 1
-            # If two trainers have the same amount, we also stop, not infinite pair
-            if turn == [-1, -1]:
-                not_done = False
-                result[a][b] = 0
-            # Keep track of outcomes of turns
-            turns.append(turn)
-            # Update first and second trainer values
-            first, second = turn
-            # Update counter
-            counter += 1
-                
-        return result
-        
-    # Create counters for trainers that leave and stay
-    stay = 0
-    leave = 0
-    
-    # Iterate through the input list
-    for i in range(len(banana_list)):
-        # Goal is to figure out what other trainers each trainer can be paired with
-        # Nested loop is required
-        for j in range(len(banana_list)):
-            if i != j:
-                # Call function that will accept two trainers, and calculate whether or not they will be in an infinite battle
-                # Don't call a trainer on itself
-                potentials = play_turns(i, j, potentials, banana_list, mem)
-    
-    # We have now created a graph that represents what trainers can be paired with what trainers
-    # We need to find the maximum possible amount of edges in this graph that can be connected
-    # This is called the maximal matching set
-    # The blossom algorithm can be used to find the maximal matching set a general graph
-    
-    # Now we need to convert the matrix to a graph
-    # This can be done using a dictionary
-    graph = {}
-    for i in range(len(potentials)):
-        temp = []
-        for j in range(len(potentials)):
-            if potentials[i][j] == 1:
-                temp.append(j)
-        graph[i] = temp
-    
-    
-    # Implement blossom algorithm
-    # Credit for Implementation: https://medium.com/@ckildalbrandt/demystifying-edmonds-blossom-algorithm-with-python-code-6353eb043311
-    def lca(match, base, p, a, b):
-        used = [False] * len(match)
-        while True:
-            a = base[a]
-            used[a] = True
-            if match[a] == -1:
-                break
-            a = p[match[a]]
-        while True:
-            b = base[b]
-            if used[b]:
-                return b
-            b = p[match[b]]
+class Edge:
+    def __init__(self, source, destination, weight):
+        self.source = source
+        self.destination = destination
+        self.weight = weight
 
-    # Mark the path from v to the base of the blossom
-    def mark_path(match, base, blossom, p, v, b, children):
-        while base[v] != b:
-            blossom[base[v]] = blossom[base[match[v]]] = True
-            p[v] = children
-            children = match[v]
-            v = p[match[v]]
+class DirectedWeightedGraph:
+    def __init__(self):
+        self.nodes = []
+        self.entrances = set()  # Set to store indices of source nodes
+        self.exits = set()  # Set to store indices of target nodes
 
-    def find_path(graph, match, p, root):
-        n = len(graph)
-        used = [False] * n
-        p[:] = [-1] * n
-        base = list(range(n))
-        used[root] = True
-        q = [root]
+    def add_node(self, value):
+        node = Node(value)
+        self.nodes.append(node)
 
-        while q:
-            v = q.pop(0)
-            for to in graph[v]:
-                if base[v] == base[to] or match[v] == to:
-                    continue
-                if to == root or (match[to] != -1 and p[match[to]] != -1):
-                    curbase = lca(match, base, p, v, to)
-                    blossom = [False] * n
-                    mark_path(match, base, blossom, p, v, curbase, to)
-                    mark_path(match, base, blossom, p, to, curbase, v)
-                    for i in range(n):
-                        if blossom[base[i]]:
-                            base[i] = curbase
-                            if not used[i]:
-                                used[i] = True
-                                q.append(i)
-                elif p[to] == -1:
-                    p[to] = v
-                    if match[to] == -1:
-                        return to
-                    to = match[to]
-                    used[to] = True
-                    q.append(to)
-        return -1
+    def add_edge(self, source, destination, weight):
+        edge = Edge(source, destination, weight)
+        source.edges.append(edge)
 
-    # Implementation of Blossom Algorithm
-    def max_matching(graph):
-        n = len(graph)
-        match = [-1] * n
-        p = [0] * n
-        for i in range(n):
-            if match[i] == -1:
-                v = find_path(graph, match, p, i)
-                while v != -1:
-                    pv = p[v]
-                    ppv = match[pv]
-                    match[v] = pv
-                    match[pv] = v
-                    v = ppv
-        # Returns number of pairs in graph
-        return sum(1 for x in match if x != -1)
+    def get_node_by_value(self, value):
+        """Returns the node with the given value if it exists in the graph."""
+        for node in self.nodes:
+            if node.value == value:
+                return node
+        return None
 
-    # Return the difference between the total number of trainers and the size of the maximal matching set
-    return len(banana_list) - max_matching(graph)
+    def add_entrance(self, index):
+        self.entrances.add(index)
 
-# Test the function with a sample input
-# solution([1, 7, 3, 21, 13, 19])
-solution([33553445, 987, 155, 94, 1, 47])
-# solution([32, 32, 32, 32, 32, 32, 32, 32, 1, 1, 32, 32, 32, 32, 32, 32, 32, 32, 1, 1, 32, 32, 32, 32, 32, 32, 32, 32, 1, 1, 32, 32, 32, 32, 32, 32, 32, 32, 1, 1, 32, 32, 32, 32, 32, 32, 32, 32, 1, 1, 32, 32, 32, 32, 32, 32, 32, 32, 1, 1, 32, 32, 32, 32, 32, 32, 32, 32, 1, 1, 32, 32, 32, 32, 32, 32, 32, 32, 1, 1, 32, 32, 32, 32, 32, 32, 32, 32, 1, 1, 32, 32, 32, 32, 32, 32, 32, 32, 1, 1])
-# The expected output for the provided input is 2
+    def add_exit(self, index):
+        self.exits.add(index)
+
+    def is_entrance(self, index):
+        return index in self.entrances
+
+    def is_exit(self, index):
+        return index in self.exits
+
+
+def ford_fulkerson(graph, source_indices, target_indices):
+    max_flow = 0
+
+    # Initialize residual graph with the same structure as the original graph
+    residual_graph = DirectedWeightedGraph()
+    for node in graph.nodes:
+        residual_graph.add_node(node.value)
+
+    # Copy edges from original graph to residual graph
+    for node in graph.nodes:
+        for edge in node.edges:
+            residual_graph.add_edge(edge.source, edge.destination, edge.weight)
+
+    while True:
+        # Use Breadth-First Search to find augmenting path
+        path, min_capacity = bfs(residual_graph, source_indices, target_indices)
+        if min_capacity == 0:
+            break  # If no augmenting path is found, break out of the loop
+
+        max_flow += min_capacity
+
+        # Update residual capacities of edges along the augmenting path
+        for i in range(len(path) - 1):
+            u = path[i]
+            v = path[i + 1]
+            for edge in residual_graph.get_node_by_value(u).edges:
+                if edge.destination.value == v:
+                    edge.weight -= min_capacity
+                    break
+            # Add reverse edge with capacity equal to the flow sent
+            for edge in residual_graph.get_node_by_value(v).edges:
+                if edge.destination.value == u:
+                    edge.weight += min_capacity
+                    break
+
+    return max_flow
+
+def bfs(graph, source_indices, target_indices):
+    visited = set()
+    queue = []
+    parent = {}
+    min_capacity = float('inf')
+
+    for source in source_indices:
+        queue.append(source)
+        visited.add(source)
+
+    while queue:
+        u = queue.pop(0)
+        for edge in graph.get_node_by_value(u).edges:
+            v = edge.destination.value
+            if edge.weight > 0 and v not in visited:
+                queue.append(v)
+                visited.add(v)
+                parent[v] = u
+                min_capacity = min(min_capacity, edge.weight)
+
+    # Reconstruct path and find minimum capacity
+    path = []
+    v = target_indices.pop()  # Take one of the target nodes
+    while v in parent:
+        path.insert(0, v)
+        v = parent[v]
+    path.insert(0, v)
+
+    return path, min_capacity
+
+# Example usage:
+path = [[0, 7, 0, 0], 
+        [0, 0, 6, 0], 
+        [0, 0, 0, 8], 
+        [9, 0, 0, 0]]
+
+graph = DirectedWeightedGraph()
+
+# Add nodes
+for i in range(len(path)):
+    graph.add_node(i)
+
+# Add edges
+for i in range(len(path)):
+    for j in range(len(path[i])):
+        if path[i][j] != 0:
+            graph.add_edge(graph.get_node_by_value(i), graph.get_node_by_value(j), path[i][j])
+
+# Define source and target nodes
+entrances = [0]  # Example source nodes
+exits = [2]  # Example target nodes
+
+# Add source and target nodes to the graph
+for entrance in entrances:
+    graph.add_entrance(entrance)
+for exit in exits:
+    graph.add_exit(exit)
+
+# Calculate max flow
+max_flow = ford_fulkerson(graph, entrances, exits)
+print("Max Flow:", max_flow)

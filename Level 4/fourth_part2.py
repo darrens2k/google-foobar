@@ -1,5 +1,11 @@
 def solution(entrances, exits, path):
 
+    # this is a problem of figuring out the maximum possible flow through a network
+    # there are several algorithms that can be used to solve this problem
+    
+    # I will use the Ford-Fulkerson algorithm to do this
+    # It operates using augmenting paths, which is an alternate method that could have been used to solve the first problem of level 4
+    
     # at its core this is a graph theory problem
     # I am attempting to solve it without using a graph representation
     # Goal is the find the path that maximizes the flow of bunnies
