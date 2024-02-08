@@ -1,6 +1,6 @@
 def solution(xs):
 
-    # find largest possible sum within subset of array
+    # find largest possible product within subset of array
     # kind of like a dynamic programming question
 
     # if only 1 number, then return that number
@@ -53,22 +53,3 @@ def solution(xs):
         return "0"
 
     return str(pos_max * neg_max)
-
-
-# Test the function with some example inputs
-test_cases = [
-    [3, 4, 5, 6],          # Expected result: 120 (6 * 5 * 4)
-    [-3, -4, -5, -6],      # Expected result: -60 (-3 * -4 * -5)
-    [-3, 4, -5, 6],        # Expected result: 90 (6 * 4 * -5)
-    [0, 4, 5, 6],          # Expected result: 120 (6 * 5 * 4)
-    [7],                   # Expected result: 7 (As it's the only element)
-    [7, 8],                # Expected result: 56 (7 * 8)
-    [0],
-    [],
-    [-1],
-    [0,-1],
-    [0,1]
-]
-
-for xs in test_cases:
-    print(f"List: {xs} -> Largest Product: {solution(xs)}")

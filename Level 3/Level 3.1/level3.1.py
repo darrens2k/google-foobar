@@ -43,6 +43,7 @@ def solution(n):
 
         return q
 
+    # subtract 1 since a number is a distinct partition of itself, but our staircase can not only have 1 step    
     return int(distinct_partitions(n) - 1)
 
 print(solution(200))

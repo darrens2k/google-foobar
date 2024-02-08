@@ -1,0 +1,1 @@
+After completing the challenge you will receive a string that is encrypted and says that it is "for your eyes only". You need to decrypt the message, the key will be everything in your gmail before the '@'.

@@ -1,5 +1,4 @@
 def solution(h, q):
-    # Your code here
     
     # given a node, I need to find its parent
     # special case is when the node is the root

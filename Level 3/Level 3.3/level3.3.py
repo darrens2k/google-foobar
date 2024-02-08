@@ -15,15 +15,6 @@ def solution(m):
     if m == [[0]] or len(m) == 0:
         # guaranteed to be in a terminal state
         return [1,1]
-    
-    # check if first row is entirely 0s, meaning it is terminal
-    # all_zeros = True
-    # for i in range(len(m[0])):
-    #     if m[0][i] != 0:
-    #         all_zeros = False
-    # if all_zeros:
-    #     return [1,1]
-
 
     # in foobar we can not use numpy or sympy, we must build functions to multiply matrices
     def multiply_matrices(a, b):
@@ -221,24 +212,8 @@ def solution(m):
     
     return numerators
 
-# solution([[0, 2, 1, 0, 0], 
-#           [0, 0, 0, 3, 4], 
-#           [0, 0, 0, 0, 0], 
-#           [0, 0, 0, 0, 0], 
-#           [0, 0, 0, 0, 0]])
-# solution([[1,1,1,0],
-#          [1,0,0,1],
-#          [0,0,0,0],
-#          [0,0,0,0]])
-solution([[ 0,  7,  0, 17,  0,  1,  0,  5,  0,  2], 
-          [ 0,  0, 29,  0, 28,  0,  3,  0, 16,  0], 
-          [ 0,  3,  0,  0,  0,  1,  0,  0,  0,  0], 
-          [48,  0,  3,  0,  0,  0, 17,  0,  0,  0], 
-          [ 0,  6,  0,  0,  0,  1,  0,  0,  0,  0], 
-          [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0], 
-          [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0], 
-          [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0], 
-          [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0], 
-          [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0]])
-# 1 is len 5
-# 2 and 10 len 6
+solution([[0, 2, 1, 0, 0], 
+          [0, 0, 0, 3, 4], 
+          [0, 0, 0, 0, 0], 
+          [0, 0, 0, 0, 0], 
+          [0, 0, 0, 0, 0]])

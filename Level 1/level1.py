@@ -1,5 +1,3 @@
-# solution to first problem
-
 def solution(i):
 
     # generate string of primes to 5 beyond given index
@@ -19,12 +17,11 @@ def solution(i):
                 if next_guess % j == 0:
                     break
             else: 
-                print(next_guess, j)
                 return next_guess
             # move to next guess
             next_guess += 1
     
-    # create string
+    # create output string
     primes = '' + str(first_prime)
 
     current_prime = first_prime
@@ -38,6 +35,6 @@ def solution(i):
     return primes[i:i+5]
 
 
-print(solution(-3))
+print(solution(3))
                 
         
